@@ -22,6 +22,16 @@ carRouter.get("/",async(req,res)=>{
     }
    
 })
+carRouter.get("/:id" , async(req,res)=>{
+    const {id} = req.params
+  try {
+    const data = await carModel.find({"_id":id})
+    res.send(data)
+    
+  } catch (error) {
+   res.send(error) 
+  }
+  })
 carRouter.post("/post",async(req,res)=>{
     try {
         const car = new carModel(req.body)
