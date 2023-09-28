@@ -32,6 +32,47 @@ carRouter.get("/:id" , async(req,res)=>{
    res.send(error) 
   }
   })
+
+  //////////////////////////////////////////
+  carRouter.get("/", async (req, res) => {
+    const make = req.query;
+    const year = req.query;
+    const kms = req.query;
+    const model = req.query;
+  
+    const { price, sort ,limit,page} = req.query;
+  
+    try {
+      if (price > 0) {
+        const data = await carModel.find({ price: { $lte: price } }).sort({
+          price: sort == "asc" ? 1 : -1,
+        });
+        res.send(data);
+      } else {
+        const data = await carModel.find({
+          $or: [
+            make,
+            year,
+            kms,
+            { $and: [make, year] },
+            { $and: [make, year, kms] },
+            { $and: [make, kms] },
+            { $and: [make, model] },
+            { $and: [make, year, model] },
+            { $and: [make, year, kms, model] },
+          ],
+        }).sort({
+          price: sort == "desc" ? -1 : 1,
+        }).limit(limit).skip((page-1)*limit)
+        res.send(data);
+      }
+    } catch (error) {
+      res.send(error);
+    }
+  });
+
+
+  /////////////////////////////////
 carRouter.post("/post",async(req,res)=>{
     try {
         const car = new carModel(req.body)
